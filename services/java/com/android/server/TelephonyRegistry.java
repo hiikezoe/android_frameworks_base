@@ -544,7 +544,12 @@ class TelephonyRegistry extends ITelephonyRegistry.Stub {
     private void broadcastServiceStateChanged(ServiceState state) {
         long ident = Binder.clearCallingIdentity();
         try {
-            mBatteryStats.notePhoneState(state.getState());
+            int phoneState = state.getState();
+            if (phoneState == ServiceState.STATE_OUT_OF_SERVICE &&
+                state.getGprsState() == ServiceState.STATE_IN_SERVICE) {
+                phoneState = ServiceState.STATE_IN_SERVICE;
+            }
+            mBatteryStats.notePhoneState(phoneState);
         } catch (RemoteException re) {
             // Can't do much
         } finally {
