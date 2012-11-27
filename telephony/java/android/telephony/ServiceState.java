@@ -115,6 +115,7 @@ public class ServiceState implements Parcelable {
     public static final int REGISTRATION_STATE_ROAMING = 5;
 
     private int mState = STATE_OUT_OF_SERVICE;
+    private int mGprsState = STATE_OUT_OF_SERVICE;
     private boolean mRoaming;
     private String mOperatorAlphaLong;
     private String mOperatorAlphaShort;
@@ -167,6 +168,7 @@ public class ServiceState implements Parcelable {
 
     protected void copyFrom(ServiceState s) {
         mState = s.mState;
+        mGprsState = s.mGprsState;
         mRoaming = s.mRoaming;
         mOperatorAlphaLong = s.mOperatorAlphaLong;
         mOperatorAlphaShort = s.mOperatorAlphaShort;
@@ -188,6 +190,7 @@ public class ServiceState implements Parcelable {
      */
     public ServiceState(Parcel in) {
         mState = in.readInt();
+        mGprsState = in.readInt();
         mRoaming = in.readInt() != 0;
         mOperatorAlphaLong = in.readString();
         mOperatorAlphaShort = in.readString();
@@ -206,6 +209,7 @@ public class ServiceState implements Parcelable {
 
     public void writeToParcel(Parcel out, int flags) {
         out.writeInt(mState);
+        out.writeInt(mGprsState);
         out.writeInt(mRoaming ? 1 : 0);
         out.writeString(mOperatorAlphaLong);
         out.writeString(mOperatorAlphaShort);
@@ -247,6 +251,10 @@ public class ServiceState implements Parcelable {
      */
     public int getState() {
         return mState;
+    }
+
+    public int getGprsState() {
+        return mGprsState;
     }
 
     /**
@@ -372,6 +380,7 @@ public class ServiceState implements Parcelable {
         }
 
         return (mState == s.mState
+                && mGprsState == s.mGprsState
                 && mRoaming == s.mRoaming
                 && mIsManualNetworkSelection == s.mIsManualNetworkSelection
                 && equalsHandlesNulls(mOperatorAlphaLong, s.mOperatorAlphaLong)
@@ -475,6 +484,7 @@ public class ServiceState implements Parcelable {
 
     private void setNullState(int state) {
         mState = state;
+        mGprsState = state;
         mRoaming = false;
         mOperatorAlphaLong = null;
         mOperatorAlphaShort = null;
@@ -501,6 +511,10 @@ public class ServiceState implements Parcelable {
 
     public void setState(int state) {
         mState = state;
+    }
+
+    public void setGprsState(int state) {
+        mGprsState = state;
     }
 
     public void setRoaming(boolean roaming) {
