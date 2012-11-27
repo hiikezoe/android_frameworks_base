@@ -438,18 +438,10 @@ public class NetworkController extends BroadcastReceiver {
         return (mSignalStrength != null) && !mSignalStrength.isGsm();
     }
 
-    private boolean hasService() {
-        if (mServiceState != null) {
-            switch (mServiceState.getState()) {
-                case ServiceState.STATE_OUT_OF_SERVICE:
-                case ServiceState.STATE_POWER_OFF:
-                    return false;
-                default:
-                    return true;
-            }
-        } else {
-            return false;
-        }
+    private boolean isServiceAvailable() {
+        return (mServiceState != null &&
+                (mServiceState.getState() == ServiceState.STATE_IN_SERVICE ||
+                 mServiceState.getGprsState() == ServiceState.STATE_IN_SERVICE));
     }
 
     private void updateAirplaneMode() {
@@ -458,8 +450,8 @@ public class NetworkController extends BroadcastReceiver {
     }
 
     private final void updateTelephonySignalStrength() {
-        if (!hasService()) {
-            if (CHATTY) Slog.d(TAG, "updateTelephonySignalStrength: !hasService()");
+        if (!isServiceAvailable()) {
+            if (CHATTY) Slog.d(TAG, "updateTelephonySignalStrength: !isServiceAvailable()");
             mPhoneSignalIconId = R.drawable.stat_sys_signal_null;
             mDataSignalIconId = R.drawable.stat_sys_signal_null;
         } else {
@@ -624,7 +616,7 @@ public class NetworkController extends BroadcastReceiver {
         if (!isCdma()) {
             // GSM case, we have to check also the sim state
             if (mSimState == IccCard.State.READY || mSimState == IccCard.State.UNKNOWN) {
-                if (hasService() && mDataState == TelephonyManager.DATA_CONNECTED) {
+                if (isServiceAvailable() && mDataState == TelephonyManager.DATA_CONNECTED) {
                     switch (mDataActivity) {
                         case TelephonyManager.DATA_ACTIVITY_IN:
                             iconId = mDataIconList[1];
@@ -650,7 +642,7 @@ public class NetworkController extends BroadcastReceiver {
             }
         } else {
             // CDMA case, mDataActivity can be also DATA_ACTIVITY_DORMANT
-            if (hasService() && mDataState == TelephonyManager.DATA_CONNECTED) {
+            if (isServiceAvailable() && mDataState == TelephonyManager.DATA_CONNECTED) {
                 switch (mDataActivity) {
                     case TelephonyManager.DATA_ACTIVITY_IN:
                         iconId = mDataIconList[1];
@@ -912,7 +904,7 @@ public class NetworkController extends BroadcastReceiver {
             if (mDataConnected) {
                 mobileLabel = mNetworkName;
             } else if (mWifiConnected) {
-                if (hasService()) {
+                if (isServiceAvailable()) {
                     mobileLabel = mNetworkName;
                 } else {
                     mobileLabel = "";
@@ -995,7 +987,7 @@ public class NetworkController extends BroadcastReceiver {
         }
 
         if (mAirplaneMode &&
-                (mServiceState == null || (!hasService() && !mServiceState.isEmergencyOnly()))) {
+                (mServiceState == null || (!isServiceAvailable() && !mServiceState.isEmergencyOnly()))) {
             // Only display the flight-mode icon if not in "emergency calls only" mode.
 
             // look again; your radios are now airplanes
@@ -1211,8 +1203,8 @@ public class NetworkController extends BroadcastReceiver {
     public void dump(FileDescriptor fd, PrintWriter pw, String[] args) {
         pw.println("NetworkController state:");
         pw.println("  - telephony ------");
-        pw.print("  hasService()=");
-        pw.println(hasService());
+        pw.print("  isServiceAvailable()=");
+        pw.println(isServiceAvailable());
         pw.print("  mHspaDataDistinguishable=");
         pw.println(mHspaDataDistinguishable);
         pw.print("  mDataConnected=");
