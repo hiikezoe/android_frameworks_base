@@ -177,10 +177,6 @@ public class PanasonicQualcommRIL extends RIL implements CommandsInterface {
             ca.pin1_replaced = p.readInt();
             ca.pin1 = ca.PinStateFromRILInt(p.readInt());
             ca.pin2 = ca.PinStateFromRILInt(p.readInt());
-            p.readInt(); //remaining_count_pin1
-            p.readInt(); //remaining_count_puk1
-            p.readInt(); //remaining_count_pin2
-            p.readInt(); //remaining_count_puk2
             status.addApplication(ca);
         }
         int appIndex = -1;
